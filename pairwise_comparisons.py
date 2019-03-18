@@ -278,7 +278,8 @@ def seek_queue_many(ids, hashes, outdir, blacklist, hashes_diff):
     len_hashes = len(hashes)
 
     last_index = 0
-    num_threads = 5
+    #changed from default 5
+    num_threads = 10
     batch_size = int(len_hashes/num_threads)
     total_tasks = len_hashes - len(blacklist)
     print(batch_size)
@@ -327,7 +328,7 @@ def seek_queue_many(ids, hashes, outdir, blacklist, hashes_diff):
         for j in where:
             j_rel = j[0] 
             j_abs = i+j_rel
-            key_id = ids[i] + '-' + ids[j_abs]
+            key_id = ids[i] + ':' + ids[j_abs]
             hashes_diff[key_id] = diff[j_rel]
 
         seen_images.append(i)

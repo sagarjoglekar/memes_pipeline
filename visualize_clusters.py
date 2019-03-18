@@ -49,50 +49,50 @@ with open(inp_file, 'r') as f:
         cluster = output_json['cluster_no']
         if cluster == -1:
             continue
-        part = 0   
-        pdf = PdfPages(base_dir_output + 'cluster'+str(cluster)+'.pdf')
-
         images_in_cluster = output_json['images']
-        
         images_num = len(images_in_cluster)
         print("Cluster = %d Images = %d" %(cluster, images_num))
-        
-        plt.figure(figsize=(40 ,30))
-        plt.rc('text', usetex=False)
-        plt.suptitle( "Images in cluster #" + str(cluster) + " = " + str(len(images_in_cluster)), fontsize=50)
 
-        columns = 4
-        print("Fetching images from disk....")
-        count=0
-        count_in_page=0
-        images_added = []
-        for i, image in enumerate(images_in_cluster):
-            path = image
-            img=mpimg.imread(path)
-            try:
-               flag = False
-               for im in images_added:
-                   if distance_matrix[image_index[image], image_index[im]] == 0.00000000000001:
-                        flag=True
-                        break
-               if flag==False: 
-                    plt.subplot(12 / columns + 1, columns, count % 12 + 1)
-                    plt.imshow(img)
-                    plt.title(path)
-                    images_added.append(image)
-                    count+=1
-                    count_in_page+=1
-               if count % 12 == 0 and flag==False:
-                    pdf.savefig()
-                    plt.close()
-                    plt.figure(figsize=(40,30))
-                    count_in_page=0
-            except Exception as e:
-                print(str(e))
-                pass
-            if count % 1000 == 0 and count > 0 and flag==False:
-                pdf.close()
-                break
+        if images_num > 10:
+            part = 0   
+            pdf = PdfPages(base_dir_output + 'cluster'+str(cluster)+'.pdf')
+            
+            plt.figure(figsize=(40 ,30))
+            plt.rc('text', usetex=False)
+            plt.suptitle( "Images in cluster #" + str(cluster) + " = " + str(len(images_in_cluster)), fontsize=50)
+
+            columns = 4
+            print("Fetching images from disk....")
+            count=0
+            count_in_page=0
+            images_added = []
+            for i, image in enumerate(images_in_cluster):
+                path = image
+                img=mpimg.imread(path)
+                try:
+                   flag = False
+                   for im in images_added:
+                       if distance_matrix[image_index[image], image_index[im]] == 0.00000000000001:
+                            flag=True
+                            break
+                   if flag==False: 
+                        plt.subplot(12 / columns + 1, columns, count % 12 + 1)
+                        plt.imshow(img)
+                        plt.title(path)
+                        images_added.append(image)
+                        count+=1
+                        count_in_page+=1
+                   if count % 12 == 0 and flag==False:
+                        pdf.savefig()
+                        plt.close()
+                        plt.figure(figsize=(40,30))
+                        count_in_page=0
+                except Exception as e:
+                    print(str(e))
+                    pass
+                if count % 1000 == 0 and count > 0 and flag==False:
+                    pdf.close()
+                    break
         try: 
             if count_in_page >0:
                 pdf.savefig()

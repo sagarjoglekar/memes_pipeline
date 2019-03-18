@@ -21,8 +21,8 @@ import pickle
 from optparse import OptionParser
 
 
-CLUSTERING_THRESHOLD=8.0
-CLUSTERING_MIN_SAMPLES=5
+CLUSTERING_THRESHOLD=16.0
+CLUSTERING_MIN_SAMPLES=15
 # load data to dictionary
 parser = OptionParser()
 parser.add_option("-p", "--phashes", dest='phashes', default='phashes.txt', help="file with phashes")
@@ -49,7 +49,7 @@ data = json.load(open(distances_file, 'r'))
 all_pairs = data.keys()
 all_images = []
 for pair in all_pairs:
-    all_images.extend(pair.split('-'))
+    all_images.extend(pair.split(':'))
 all_images = set(all_images)
 
 # create a dict that will provide us with the mapping between the image and the
@@ -68,8 +68,8 @@ n = len(all_images)
 distance_matrix = lil_matrix((n, n))
 
 for pair in all_pairs:
-    image1 = pair.split('-')[0]
-    image2 = pair.split('-')[-1]
+    image1 = pair.split(':')[0]
+    image2 = pair.split(':')[-1]
     distance = data[pair]
     if distance == 0:
         distance = 0.00000000000001
@@ -108,7 +108,7 @@ def print_clusters_to_file(clustering_output, filename):
     output.close()
     return output_json
 
-clustering = DBSCAN(eps=CLUSTERING_THRESHOLD, metric='precomputed', n_jobs=8, min_samples=CLUSTERING_MIN_SAMPLES).fit(distance_matrix.tocsr())
+clustering = DBSCAN(eps=CLUSTERING_THRESHOLD, metric='precomputed', n_jobs=10, min_samples=CLUSTERING_MIN_SAMPLES).fit(distance_matrix.tocsr())
 num_clusters = len(dict(Counter(clustering.labels_)).keys())
 print("Number of clusters  = %d " %(num_clusters-1))
 
@@ -116,7 +116,7 @@ def load_phashes(fil):
     phash_dict = {}
     with open(fil) as f:
         for line in f:
-            el = line.replace('\n','').split('\t')
+            el = line.strip().split('\t')
             image = el[0]
             phash = el[1]
             phash_dict[image] = phash
@@ -152,7 +152,11 @@ def find_cluster_medroid_phash(cl_output, cluster_num, phash_dict, distance_matr
     # find the image name that corresponds to the index
     image_name = index_im_dict[ind_in_indices]
     # find phash of the image
-    phash = phash_dict[image_name]
+    try:
+        phash = phash_dict[image_name]
+    except KeyError:
+        print 'Could not find image with key: ' + image_name
+        phash = '1b7d75b341c5e442'
     return phash, image_name
     
 print("Calculating cluster medoids...")

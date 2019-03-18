@@ -1,0 +1,8 @@
+*.pdf
+*.pyc
+*.json
+*.p
+*.txt
+*.gz
+*.output
+*.mat
